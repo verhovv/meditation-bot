@@ -2,6 +2,8 @@ from pydantic_settings import BaseSettings
 
 
 class Config(BaseSettings):
+    COMPOSE_PROJECT_NAME: str
+
     BOT_TOKEN: str
 
     DEBUG: bool
@@ -17,6 +19,9 @@ class Config(BaseSettings):
 
     REDIS_HOST: str
     REDIS_PORT: str
+
+    YOOKASSA_API_KEY: str
+    YOOKASSA_SHOP_ID: str
 
     class Config:
         env_file = ".env"

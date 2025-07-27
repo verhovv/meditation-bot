@@ -3,6 +3,7 @@ from aiogram import BaseMiddleware
 from aiogram.types import Message, CallbackQuery
 from web.panel.models import User
 
+
 class UserMiddleware(BaseMiddleware):
     async def __call__(
             self,

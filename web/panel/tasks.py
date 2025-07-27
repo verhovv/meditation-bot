@@ -6,7 +6,8 @@ import requests
 from celery import shared_task
 
 from config import config
-from .models import Mailing, User
+from .models import Mailing, User, UserSubscription
+from django.utils import timezone
 
 
 @shared_task
@@ -98,7 +99,12 @@ def send_mailing(mailing_id: int):
         time.sleep(0.01)
 
     for user in User.objects.all():
-        send_mail_delay(user.id)
+        sub_user, created = UserSubscription.objects.get_or_create(user=user)
+
+        if mailing.pay_user and sub_user.leave_date and sub_user.leave_date > timezone.now():
+            send_mail_delay(user.id)
+        elif not mailing.pay_user and (not sub_user.leave_date or sub_user.leave_date < timezone.now()):
+            send_mail_delay(user.id)
 
     mailing.is_ok = True
     mailing.save()
