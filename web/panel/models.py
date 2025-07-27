@@ -145,7 +145,7 @@ class Payment(models.Model):
     date = models.DateTimeField('Дата')
 
     def __str__(self):
-        return self.date.strftime('%m.%d%Y %H:%M')
+        return self.date.strftime('%m.%d.%Y %H:%M')
 
     class Meta:
         verbose_name = 'Оплата'
