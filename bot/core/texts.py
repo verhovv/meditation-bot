@@ -47,7 +47,7 @@ default_texts = {
     TextEnum.channel_subscribe_button: 'Подписаться',
     TextEnum.channel_check_button: 'Проверить подписку',
     TextEnum.channel_check_canceled: 'Проверьте подписку и попробуйте еще раз',
-    TextEnum.main_menu: 'Привет, милая ИМЯ!\n\nО ПОДИПИСКЕ\n\nВаш id: TELEGRAM_ID',
+    TextEnum.main_menu: 'Привет, милая ИМЯ!\n\nО ПОДПИСКЕ\n\nВаш id: TELEGRAM_ID',
     TextEnum.meditation_button: '🎧Медитация',
     TextEnum.preparation_button: '🌙Подготовка',
     TextEnum.about_button: 'ℹО проекте "точка GG"',
