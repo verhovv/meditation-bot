@@ -144,6 +144,9 @@ class Payment(models.Model):
     status = models.BooleanField(default=True)
     date = models.DateTimeField('Дата')
 
+    def __str__(self):
+        return self.date.strftime('%m.%d%Y %H:%M')
+
     class Meta:
         verbose_name = 'Оплата'
         verbose_name_plural = 'Оплаты'
