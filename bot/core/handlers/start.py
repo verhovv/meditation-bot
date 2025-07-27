@@ -22,7 +22,7 @@ async def get_menu_text(user: User) -> str:
     text = text.replace('TELEGRAM_ID', f'<a href="tg://user?id={user.id}">{user.id}</a>')
 
     user_sub, created = await UserSubscription.objects.aget_or_create(user=user)
-    payed_sub = created and user_sub.leave_date > timezone.now()
+    payed_sub = user_sub.leave_date and user_sub.leave_date > timezone.now()
 
     sub_text = (f'{"Ваша подписка не активна" if not payed_sub else "Ваша подписка активна!\n"}'
                 f'{f"Дата окончания подписки: <b>{timezone.localtime(user_sub.leave_date).strftime('%d.%m.%Y %H:%M')}</b>" if payed_sub else ""}')
