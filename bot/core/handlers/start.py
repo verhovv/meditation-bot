@@ -43,7 +43,8 @@ async def start(message: Message, bot: Bot, user: User, command: CommandObject =
 
         try:
             referrer = await User.objects.aget(id=int(ref_id))
-            if not await sync_to_async(lambda: len(user.referrers.all()))():
+            if not await sync_to_async(lambda: len(user.referrers.all()))() \
+                    and referrer.id != user.id:
                 _ = await UserReferral.objects.aget_or_create(user=referrer, referral=user)
         except Exception as E:
             print(E)
