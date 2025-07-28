@@ -21,11 +21,12 @@ async def on_meditation(callback: CallbackQuery, user: User):
            'Каждая практика — как мягкое прикосновение. Глубокое. Настоящее. Только для тебя.\n'
 
     i = 0
+    j = 0
     keyboard = []
     async for meditation in Meditation.objects.order_by('id'):
         m, _ = await UserMeditation.objects.aget_or_create(user=user, meditation=meditation)
 
-        if not m.has_listened and i == 3 and not has_sub:
+        if not m.has_listened and j == 3 and not has_sub:
             break
 
         if not i % 5:
@@ -42,7 +43,7 @@ async def on_meditation(callback: CallbackQuery, user: User):
         if not m.has_listened:
             break
 
-        i = i % 5 + 1
+        i += 1
 
     m_len = await sync_to_async(lambda: len(Meditation.objects.all()))()
     text += f'<b>\nТы прослушала {i} из {m_len} медитаций</b>'
