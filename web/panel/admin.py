@@ -7,11 +7,16 @@ from web.panel.models import *
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'username', 'first_name', 'last_name', 'sub', 'has_referrals', 'created_at')
+    list_display = (
+        'id', 'username', 'first_name', 'last_name', 'sub', 'has_referrals', 'meditation_count', 'created_at')
     fields = ('id', 'username', 'first_name', 'last_name', 'send_feedback', 'created_at')
     readonly_fields = ('id', 'username', 'first_name', 'last_name', 'created_at')
 
     exclude = ('data',)
+
+    @display(description='Сколько медитаций прослушано')
+    def meditation_count(self, obj: User):
+        return UserMeditation.objects.filter(user=obj, has_listened=True).count()
 
     @display(description='Дата окончания подписки')
     def sub(self, obj: User):
