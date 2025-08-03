@@ -7,6 +7,7 @@ from django.utils import timezone
 from bot.core.keyboards import CallbackData
 from bot.core.texts import get_text, TextEnum
 from web.panel.models import Meditation, UserMeditation, User, UserSubscription
+from web.panel.models import Settings
 
 router = Router()
 
@@ -21,12 +22,12 @@ async def on_meditation(callback: CallbackQuery, user: User):
            'Каждая практика — как мягкое прикосновение. Глубокое. Настоящее. Только для тебя.\n'
 
     i = 0
-    j = 0
     keyboard = []
+    settings = await sync_to_async(Settings.get_solo)()
     async for meditation in Meditation.objects.order_by('id'):
         m, _ = await UserMeditation.objects.aget_or_create(user=user, meditation=meditation)
 
-        if not m.has_listened and j == 3 and not has_sub:
+        if not m.has_listened and i > 2 and not has_sub and not settings.free_meditations:
             break
 
         if not i % 5:

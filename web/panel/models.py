@@ -1,4 +1,18 @@
 from django.db import models
+from solo.models import SingletonModel
+
+
+class Settings(SingletonModel):
+    free_meditations = models.BooleanField('Открыть медитации всем пользователям', default=False)
+    give_free_sub = models.BooleanField('Давать бесплатную подписку за вход', default=True)
+    free_sub_days = models.IntegerField('Дней бесплатной подписки', default=7)
+
+    def __str__(self):
+        return 'Настройки'
+
+    class Meta:
+        verbose_name = 'Настройки'
+        verbose_name_plural = 'Настройки'
 
 
 class User(models.Model):
@@ -14,6 +28,9 @@ class User(models.Model):
 
     data = models.JSONField(default=dict, blank=True)
     state = models.CharField(null=True, blank=True)
+
+    ref_money = models.IntegerField('Доступно к выводу за рефералов', default=0)
+    ref_days = models.IntegerField('Бесплатных дней за рефералов', default=0)
 
     def __str__(self):
         return f'id{self.id} | @{self.username or "-"} {self.first_name or "-"} {self.last_name or "-"}'

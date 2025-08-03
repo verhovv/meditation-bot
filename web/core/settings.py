@@ -16,7 +16,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'web.panel'
+    'web.panel',
+    'web.referral',
+    'solo'
 ]
 
 MIDDLEWARE = [

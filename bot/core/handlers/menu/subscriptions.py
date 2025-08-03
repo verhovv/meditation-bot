@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 from aiogram import Router, F, Bot
 from aiogram.enums import ParseMode
 from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
@@ -10,7 +8,10 @@ from bot.core.keyboards import CallbackData
 from bot.core.texts import get_text, TextEnum
 from bot.core.yookassa import YooKassaAsyncClient
 from web.panel.models import User, Subscription, UserSubscription, Payment, UserReferral
+from web.referral.models import Settings as ReferralSettings
 from bot.core.keyboards import keyboards
+
+from bot.core.utils import add_sub_days
 
 router = Router()
 
@@ -140,22 +141,17 @@ async def on_view_sub(callback: CallbackQuery, user: User, bot: Bot):
         parse_mode=ParseMode.HTML
     )
 
-    referrer = await sync_to_async(lambda: user.referrers.first().user)()
+    referrer: User = await sync_to_async(lambda: user.referrers.first().user)()
+    ref_s = await sync_to_async(lambda: ReferralSettings.get_solo())()
 
-    await add_sub_days(user=referrer, plus_days=7)
+    await add_sub_days(user=referrer, plus_days=ref_s.days_per_sub)
+
+    referrer.ref_days += ref_s.days_per_sub
+    referrer.ref_money += ref_s.money_per_sub
+    await referrer.asave()
 
     await bot.send_message(
-        text=f'Ваш реферал оплатил подписку. Вам начислено 7 дней',
+        text=f'Ваш реферал оплатил подписку. Вам начислено {ref_s.days_per_sub} дней',
         chat_id=referrer.id,
         reply_markup=await keyboards.back_to_menu
     )
-
-
-async def add_sub_days(user: User, plus_days: int):
-    user_sub, created = await UserSubscription.objects.aget_or_create(user=user)
-    plus_time = timedelta(days=plus_days)
-    if not user_sub.leave_date or user_sub.leave_date <= timezone.now():
-        user_sub.leave_date = timezone.now() + plus_time
-    else:
-        user_sub.leave_date += plus_time
-    await user_sub.asave()

@@ -21,5 +21,6 @@ class UserMiddleware(BaseMiddleware):
         await user.asave()
 
         data['user'] = user
+        data['user_created'] = created
 
         return await handler(event, data)

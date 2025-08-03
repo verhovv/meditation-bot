@@ -3,12 +3,13 @@ from django.contrib.admin import display
 from django.utils import timezone
 
 from web.panel.models import *
+from solo.admin import SingletonModelAdmin
 
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'username', 'first_name', 'last_name', 'sub', 'has_referrals', 'meditation_count', 'created_at')
+        'id', 'username', 'first_name', 'last_name', 'sub', 'has_referrals', 'meditation_count', 'ref_days', 'ref_money', 'created_at')
     fields = ('id', 'username', 'first_name', 'last_name', 'send_feedback', 'created_at')
     readonly_fields = ('id', 'username', 'first_name', 'last_name', 'created_at')
 
@@ -108,3 +109,8 @@ class PaymentAdmin(admin.ModelAdmin):
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
     list_display = ['name', 'days', 'cost']
+
+
+@admin.register(Settings)
+class SettingsAdmin(SingletonModelAdmin):
+    pass

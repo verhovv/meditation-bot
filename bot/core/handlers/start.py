@@ -9,7 +9,8 @@ from asgiref.sync import sync_to_async
 from bot.core.texts import TextEnum, get_text
 from bot.core.keyboards import keyboards, CallbackData
 
-from web.panel.models import User, UserReferral, UserSubscription
+from web.panel.models import User, UserReferral, UserSubscription, Settings
+from bot.core.utils import add_sub_days
 from django.utils import timezone
 
 router = Router()
@@ -34,9 +35,14 @@ async def get_menu_text(user: User) -> str:
 
 @router.callback_query(F.data == CallbackData.back_to_menu)
 @router.message(CommandStart())
-async def start(message: Message, bot: Bot, user: User, command: CommandObject = None):
+async def start(message: Message, bot: Bot, user: User, user_created: bool, command: CommandObject = None):
     user.state = None
     await user.asave()
+
+    settings = await sync_to_async(Settings.get_solo)()
+    if user_created and settings.give_free_sub:
+        await add_sub_days(user=user, plus_days=settings.free_sub_days)
+        await message.answer(text=f'Тебе доступна бесплатная подписка на {settings.free_sub_days} дней')
 
     if command:
         ref_id = command.args
