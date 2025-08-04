@@ -1,6 +1,7 @@
 from aiogram import Router, F, Bot
 from aiogram.enums import ParseMode
-from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, \
+    KeyboardButton, Message
 from asgiref.sync import sync_to_async
 from django.utils import timezone
 
@@ -52,7 +53,7 @@ async def on_tariffs(callback: CallbackQuery, user: User):
 
 
 @router.callback_query(F.data.startswith('sub_v'))
-async def on_view_sub(callback: CallbackQuery):
+async def on_view_sub(callback: CallbackQuery, user: User):
     *_, sub_id = callback.data.split('_')
     sub = await Subscription.objects.aget(id=int(sub_id))
 
@@ -66,12 +67,22 @@ async def on_view_sub(callback: CallbackQuery):
         ),
         parse_mode=ParseMode.HTML
     )
+    await callback.message.answer(text='Продолжим оформление?', reply_markup=ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text='Купить подписку', request_contact=True)]],
+        resize_keyboard=True
+    ))
+
+    user.data['sub_id'] = sub_id
+    await user.asave()
 
 
-@router.callback_query(F.data.startswith('sub_b_'))
-async def on_view_sub(callback: CallbackQuery):
-    *_, sub_id = callback.data.split('_')
-    sub_id = int(sub_id)
+@router.message(F.contact)
+async def on_view_sub(message: Message, user: User):
+    if message.contact.user_id != user.id:
+        return
+
+    sub_id = user.data['sub_id']
+
     sub = await Subscription.objects.aget(id=int(sub_id))
 
     try:
@@ -80,6 +91,9 @@ async def on_view_sub(callback: CallbackQuery):
                 amount=sub.cost,
                 description=sub.name,
                 receipt={
+                    "customer": {
+                        "phone": message.contact.phone_number
+                    },
                     "items": [
                         {
                             "description": sub.name,
@@ -100,7 +114,7 @@ async def on_view_sub(callback: CallbackQuery):
             payment_id = payment['id']
     except Exception as E:
         print(E)
-        await callback.message.answer(
+        await message.answer(
             text='Ошибка! Нет связи с банком. Попробуйте позднее.',
             reply_markup=InlineKeyboardMarkup(
                 inline_keyboard=[
@@ -109,7 +123,7 @@ async def on_view_sub(callback: CallbackQuery):
         )
         return
 
-    await callback.message.answer(
+    await message.answer(
         text=f'Ссылка для оплаты: {payment_url}',
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[
