@@ -36,7 +36,8 @@ class YooKassaAsyncClient:
             return_url: Optional[str] = "https://payments.yookassa.ru",
             metadata: Optional[Dict[str, Any]] = None,
             capture: bool = True,
-            payment_method_type: str = "bank_card"
+            payment_method_type: str = "bank_card",
+            receipt=None
     ) -> Dict[str, Any]:
         url = f"{self.BASE_URL}payments"
 
@@ -58,7 +59,8 @@ class YooKassaAsyncClient:
                 "return_url": return_url
             },
             "capture": capture,
-            "description": description or "Оплата заказа"
+            "description": description or "Оплата заказа",
+            "receipt": receipt
         }
 
         if metadata:
@@ -87,23 +89,3 @@ class YooKassaAsyncClient:
                 else:
                     error = await response.text()
                     raise Exception(f"Error: {response.status}, {error}")
-
-
-async def main():
-    async with YooKassaAsyncClient() as client:
-        payment = await client.create_payment(
-            amount=100.00,
-            description="Тестовый платеж",
-            return_url="https://payments.yookassa.ru",
-        )
-        print("Создан платеж:", payment)
-
-    await asyncio.sleep(15)
-
-    async with YooKassaAsyncClient() as client:
-        status = await client.get_payment_status(payment['id'])
-        print("Статус платежа:", status)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())

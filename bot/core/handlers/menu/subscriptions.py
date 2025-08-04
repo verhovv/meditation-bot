@@ -78,7 +78,22 @@ async def on_view_sub(callback: CallbackQuery):
         async with YooKassaAsyncClient() as client:
             payment = await client.create_payment(
                 amount=sub.cost,
-                description=sub.name
+                description=sub.name,
+                receipt={
+                    "items": [
+                        {
+                            "description": sub.name,
+                            "quantity": "1",
+                            "amount": {
+                                "value": f"{sub.cost:.2f}",
+                                "currency": "RUB"
+                            },
+                            "vat_code": 1,
+                            "payment_mode": "full_payment",
+                            "payment_subject": "service"
+                        }
+                    ]
+                }
             )
             print(payment)
             payment_url = payment['confirmation']['confirmation_url']
