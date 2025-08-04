@@ -67,10 +67,12 @@ async def on_view_sub(callback: CallbackQuery, user: User):
         ),
         parse_mode=ParseMode.HTML
     )
-    await callback.message.answer(text='Продолжим оформление?', reply_markup=ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton(text='Купить подписку', request_contact=True)]],
-        resize_keyboard=True
-    ))
+    await callback.message.answer(
+        text='Продолжим оформление? Нажмите на кнопку "Купить подписку". Номер нужен для отправки чека',
+        reply_markup=ReplyKeyboardMarkup(
+            keyboard=[[KeyboardButton(text='Купить подписку', request_contact=True)]],
+            resize_keyboard=True
+        ))
 
     user.data['sub_id'] = sub_id
     await user.asave()
