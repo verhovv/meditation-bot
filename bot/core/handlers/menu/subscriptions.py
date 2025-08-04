@@ -1,7 +1,7 @@
 from aiogram import Router, F, Bot
 from aiogram.enums import ParseMode
 from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, \
-    KeyboardButton, Message
+    KeyboardButton, Message, ReplyKeyboardRemove
 from asgiref.sync import sync_to_async
 from django.utils import timezone
 
@@ -82,6 +82,9 @@ async def on_view_sub(callback: CallbackQuery, user: User):
 async def on_view_sub(message: Message, user: User):
     if message.contact.user_id != user.id:
         return
+
+    msg = await message.answer(text='Удаляем клавиатуру', reply_markup=ReplyKeyboardRemove())
+    await msg.delete()
 
     sub_id = user.data['sub_id']
 
