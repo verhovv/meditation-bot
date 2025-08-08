@@ -41,8 +41,9 @@ async def start(message: Message, bot: Bot, user: User, user_created: bool, comm
 
     settings = await sync_to_async(Settings.get_solo)()
     if user_created and settings.give_free_sub:
+        text = await get_text(text_enum=TextEnum.free_days_notification)
         await add_sub_days(user=user, plus_days=settings.free_sub_days)
-        await message.answer(text=f'Тебе доступна бесплатная подписка на {settings.free_sub_days} дней')
+        await message.answer(text=text.replace('ДНЕЙ', str(settings.free_sub_days)))
 
     if command:
         ref_id = command.args

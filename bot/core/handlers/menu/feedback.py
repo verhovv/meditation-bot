@@ -19,8 +19,10 @@ async def on_feedback(callback: CallbackQuery, user: User):
     user.state = 'feedback'
     await user.asave()
 
+    text = await get_text(TextEnum.feedback)
+
     await callback.message.answer(
-        text='Пришлите отзыв одним сообщением, а мы его передадим',
+        text=text,
         reply_markup=await keyboards.back_to_menu
     )
 

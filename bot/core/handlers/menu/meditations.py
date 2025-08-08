@@ -18,8 +18,7 @@ async def on_meditation(callback: CallbackQuery, user: User):
     user_sub, created = await UserSubscription.objects.aget_or_create(user=user)
     has_sub = user_sub.leave_date and user_sub.leave_date > timezone.now()
 
-    text = '🎧 Выбери медитацию, чтобы начать:\n\n' + \
-           'Каждая практика — как мягкое прикосновение. Глубокое. Настоящее. Только для тебя.\n'
+    text = await get_text(TextEnum.meditation_up)
 
     i = 0
     keyboard = []
@@ -47,10 +46,10 @@ async def on_meditation(callback: CallbackQuery, user: User):
         i += 1
 
     m_len = await sync_to_async(lambda: len(Meditation.objects.all()))()
-    text += f'<b>\nТы прослушала {i} из {m_len} медитаций</b>'
+    text += (await get_text(TextEnum.meditation_bot)).replace('А', str(i)).replace('Б', str(m_len))
 
-    if not has_sub and i > 2:
-        text += '\n\nЧтобы слушать больше медитаций нужно оформить подписку'
+    if not has_sub and i > 2 and not settings.free_meditations:
+        text += await get_text(TextEnum.meditation_no_sub)
 
     keyboard.append(
         [

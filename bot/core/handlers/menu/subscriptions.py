@@ -61,16 +61,16 @@ async def on_view_sub(callback: CallbackQuery, user: User):
         text=f'<b>{sub.name}</b>\n<b>Срок подписки:</b> {sub.days} дней\n<b>Стоимость подписки:</b> {sub.cost}₽',
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[
-                [InlineKeyboardButton(text='Купить подписку', callback_data=f'sub_b_{sub.id}')],
                 [InlineKeyboardButton(text=await get_text(TextEnum.back_button), callback_data=f'back_sub')]
             ]
         ),
         parse_mode=ParseMode.HTML
     )
+
     await callback.message.answer(
-        text='Продолжим оформление? Нажмите на кнопку "Купить подписку". Номер нужен для отправки чека',
+        text=await get_text(TextEnum.sub_go),
         reply_markup=ReplyKeyboardMarkup(
-            keyboard=[[KeyboardButton(text='Купить подписку', request_contact=True)]],
+            keyboard=[[KeyboardButton(text=await get_text(TextEnum.sub_buy_button), request_contact=True)]],
             resize_keyboard=True
         ))
 
@@ -120,7 +120,7 @@ async def on_view_sub(message: Message, user: User):
     except Exception as E:
         print(E)
         await message.answer(
-            text='Ошибка! Нет связи с банком. Попробуйте позднее.',
+            text=await get_text(TextEnum.sub_buy_error),
             reply_markup=InlineKeyboardMarkup(
                 inline_keyboard=[
                     [InlineKeyboardButton(text=await get_text(TextEnum.back_button), callback_data=f'back_sub')]],
@@ -129,10 +129,11 @@ async def on_view_sub(message: Message, user: User):
         return
 
     await message.answer(
-        text=f'Ссылка для оплаты: {payment_url}',
+        text=(await get_text(TextEnum.pay_link)).replace('ССЫЛКА', payment_url),
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[
-                [InlineKeyboardButton(text='Я оплатила', callback_data=f'sub_bought_{payment_id}_{sub.id}')],
+                [InlineKeyboardButton(text=await get_text(TextEnum.pay_go),
+                                      callback_data=f'sub_bought_{payment_id}_{sub.id}')],
                 [InlineKeyboardButton(text=await get_text(TextEnum.back_button), callback_data=f'back_sub')]
             ]
         ),
@@ -150,7 +151,7 @@ async def on_view_sub(callback: CallbackQuery, user: User, bot: Bot):
             payment = await client.get_payment_status(payment_id=payment_id)
     except Exception as E:
         print(E)
-        await callback.answer(text='Ошибка! Нет связи с банком. Попробуйте позднее', show_alert=True)
+        await callback.answer(text=await get_text(TextEnum.sub_buy_error), show_alert=True)
         return
 
     payed = payment['status'] == 'succeeded'
